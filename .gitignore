@@ -4,3 +4,4 @@
 .Ruserdata
 mlruns/
 mlflow.db/
+__pycache__/

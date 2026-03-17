@@ -1,0 +1,133 @@
+---
+title: "R y Python en un mismo flujo de MLOps"
+subtitle: "Demo neutral sobre viabilidad práctica"
+author: "demo_mlflow"
+format:
+  revealjs:
+    theme: white
+    slide-number: true
+    controls: true
+    transition: fade
+    smaller: true
+---
+
+## Pregunta
+
+¿Es una posibilidad real usar **R** para desarrollar modelos sin renunciar al flujo de **MLOps**?
+
+::: {.notes}
+Abrir con la pregunta y no con una defensa ideológica.
+La demo no intenta probar que R sea mejor que Python.
+Busca probar si R puede entrar al ciclo operativo completo.
+:::
+
+## Punto de partida
+
+- mismo problema de negocio
+- mismo tracking en MLflow
+- mismo criterio de comparación
+- dos implementaciones: R y Python
+
+::: {.notes}
+Explicar que el valor de la demo es la comparabilidad.
+No se trata de dos ejercicios independientes, sino de dos caminos sobre un mismo flujo.
+:::
+
+## Paso 0: reproducibilidad de datos
+
+- se agregó un script para preparar el dataset
+- resuelve el CSV fuente
+- construye el parquet usado por la demo
+- evita depender de una copia manual del archivo
+
+```powershell
+py scripts/prepare_flights_data.py --force
+```
+
+::: {.notes}
+Subrayar que este cambio mejora la credibilidad de la PoC.
+Antes había dependencia de archivos locales ya presentes.
+Ahora la demo deja explícito cómo se obtiene el insumo y cómo se produce el parquet.
+:::
+
+## Hallazgo 1: R entra en MLflow
+
+- R registró runs, métricas y artefactos
+- el modelo quedó trazable
+- la evidencia es visible en la misma UI de MLflow
+
+::: {.notes}
+Mostrar una run de R y remarcar que aquí ya hay trazabilidad, no solo entrenamiento.
+:::
+
+## Hallazgo 2: R también sirve predicciones
+
+- API local con `plumber`
+- endpoint `/ping`
+- endpoint `/predict`
+- documentación Swagger disponible
+
+::: {.notes}
+Mostrar la documentación y una predicción simple.
+El punto es que el modelo de R no quedó encerrado en escritorio.
+:::
+
+## Hallazgo 3: Python convive en el mismo flujo
+
+- run espejo en Python
+- mismo experimento en MLflow
+- mismo tipo de modelo y variables
+- comparación directa entre implementaciones
+
+::: {.notes}
+Decir que Python aquí funciona como espejo y referencia.
+La conclusión no es excluir Python, sino mostrar convivencia real.
+:::
+
+## Hallazgo 4: R puede disparar reentrenamiento
+
+- monitor en R calcula `drift_score`
+- evalúa umbral
+- dispara una nueva run si detecta drift suficiente
+
+::: {.notes}
+Esta es la parte que más pesa para la pregunta de MLOps.
+No es solo entrenamiento ni serving; es ciclo de vida.
+:::
+
+## Limitaciones observadas
+
+- hubo fricción con tooling en Windows
+- Docker Desktop fue la parte menos estable
+- la fricción principal no estuvo en el lenguaje del modelo
+
+::: {.notes}
+Mantener tono neutral.
+El objetivo es reconocer límites reales sin invalidar el hallazgo principal.
+:::
+
+## Respuesta
+
+**Sí, es una posibilidad real usar R para desarrollar modelos sin renunciar al flujo de MLOps.**
+
+Con matices:
+
+- el lenguaje no alcanza por sí solo
+- hace falta estándar de tracking, artefactos y API
+- la operación depende mucho del entorno de despliegue
+
+::: {.notes}
+Dar una respuesta clara.
+La conclusión no es que R siempre deba usarse, sino que descartarlo por incompatibilidad con MLOps no queda respaldado por la evidencia observada.
+:::
+
+## Cierre
+
+- R y Python pueden convivir en un mismo flujo
+- la gobernanza puede ser multilenguaje
+- la decisión debe basarse en operación, mantenimiento y equipo
+
+::: {.notes}
+Cerrar en tono ejecutivo.
+La recomendación es decidir por costo operativo y gobernanza, no por prejuicio sobre el lenguaje.
+:::

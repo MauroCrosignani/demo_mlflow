@@ -1,53 +1,107 @@
-
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
 # demo_mlflow
 
-<!-- badges: start -->
+PoC para comparar un flujo de MLOps con **R** y con **Python** sobre el mismo problema, usando **MLflow** como punto común de tracking.
 
-<!-- badges: end -->
+La pregunta de trabajo es:
 
-The goal of demo_mlflow is to …
+**¿Es una posibilidad real usar R para desarrollar modelos sin renunciar al flujo de MLOps?**
 
-## Installation
+La demo muestra que **sí**, siempre que el estándar operativo sea el mismo: tracking, API y artefactos reproducibles.
 
-You can install the development version of demo_mlflow from
-[GitHub](https://github.com/) with:
+## Qué quedó implementado
 
-``` r
-# install.packages("pak")
-pak::pak("MauroCrosignani/demo_mlflow")
+- entrenamiento y logging en MLflow desde R
+- API de inferencia en R con `plumber`
+- entrenamiento y logging equivalente en Python
+- API de inferencia en Python con `FastAPI`
+- `docker-compose.yml` con la arquitectura objetivo de tres servicios
+- monitor de drift en R que dispara reentrenamiento
+- script reproducible para preparar el dataset y el parquet
+
+## Paso 0: preparar datos de forma reproducible
+
+El proyecto ahora incluye un script que resuelve la construcción del parquet usado por la demo.
+
+Archivo:
+
+- `scripts/prepare_flights_data.py`
+
+Uso mínimo si ya tienes el CSV local:
+
+```powershell
+py scripts/prepare_flights_data.py --force
 ```
 
-## Example
+Uso si necesitas descargar el CSV desde una URL directa:
 
-This is a basic example which shows you how to solve a common problem:
-
-``` r
-# library(demo_mlflow)
-## basic example code
+```powershell
+$env:FLIGHTS_CSV_URL="AQUI_LA_URL_DIRECTA_DEL_CSV"
+py scripts/prepare_flights_data.py --force
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
+Resultado esperado:
 
-``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
+- `data-raw/Flights_2022_1.csv`
+- `data-raw/Combined_Flights_2022.parquet`
+
+## Demo operativa de 5-10 minutos
+
+La secuencia más estable en esta máquina es usar MLflow en host y las APIs localmente.
+
+### Terminal 1: levantar MLflow en host
+
+```powershell
+py -m mlflow server --workers 1 --backend-store-uri sqlite:///mlflow.db/host_mlflow.db --default-artifact-root ./mlruns --host 127.0.0.1 --port 5001
 ```
 
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this.
+UI:
 
-You can also embed plots, for example:
+- `http://127.0.0.1:5001`
 
-<img src="man/figures/README-pressure-1.png" width="100%" />
+### Terminal 2: registrar una run desde R
 
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub and CRAN.
+```powershell
+$env:MLFLOW_URI="http://127.0.0.1:5001"
+Rscript pruebas_mvp.R
+```
+
+### Terminal 3: levantar y probar la API de R
+
+```powershell
+Rscript serve_model_r.R
+```
+
+```powershell
+Invoke-RestMethod -Uri "http://127.0.0.1:8001/ping"
+Invoke-RestMethod -Uri "http://127.0.0.1:8001/predict" -Method Post -ContentType "application/json" -Body '{"Distance":500,"DayOfWeek":3,"Month":7}'
+```
+
+### Terminal 4: registrar la run espejo desde Python
+
+```powershell
+$env:MLFLOW_URI="http://127.0.0.1:5001"
+py train_and_log_python.py
+```
+
+### Paso final: monitoreo y reentrenamiento desde R
+
+```powershell
+$env:MLFLOW_URI="http://127.0.0.1:5001"
+Rscript monitor.R
+```
+
+## Orden exacto para presentar
+
+1. Mostrar que los datos se pueden preparar de forma reproducible y que el parquet no depende de una copia manual.
+2. Abrir MLflow y formular la pregunta: si usar R obliga o no a salir del flujo MLOps.
+3. Mostrar una run hecha en R.
+4. Mostrar la API de inferencia en R.
+5. Mostrar la run equivalente en Python en el mismo experimento.
+6. Mostrar el monitor en R disparando reentrenamiento.
+7. Cerrar con la conclusión.
+
+## Conclusión de la demo
+
+- R sí puede participar en un flujo de MLOps real.
+- El lenguaje no es el principal determinante; lo son el tracking, la API y la estandarización de artefactos.
+- Las fricciones observadas estuvieron más ligadas al entorno Windows y a Docker Desktop que al modelado en R.

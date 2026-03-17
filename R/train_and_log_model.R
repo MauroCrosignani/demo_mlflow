@@ -133,11 +133,21 @@ train_and_log_model <- function(data_path,
   saveRDS(flujo_entrenado, ruta_modelo)
 
   artefacto_local <- FALSE
-  if (!is.null(run$artifact_uri) && grepl("^/mlruns/", run$artifact_uri) && dir.exists("mlruns")) {
-    base_artifacts <- file.path(
-      normalizePath("mlruns", winslash = "/", mustWork = TRUE),
-      sub("^/mlruns/?", "", run$artifact_uri)
-    )
+  artifact_uri <- if (is.null(run$artifact_uri)) "" else gsub("\\\\", "/", run$artifact_uri)
+  if (nzchar(artifact_uri) && dir.exists("mlruns")) {
+    base_artifacts <- NULL
+
+    if (grepl("^/mlruns/", artifact_uri)) {
+      base_artifacts <- file.path(
+        normalizePath("mlruns", winslash = "/", mustWork = TRUE),
+        sub("^/mlruns/?", "", artifact_uri)
+      )
+    } else if (grepl("^(\\./)?mlruns/", artifact_uri)) {
+      relative_artifact_uri <- sub("^(\\./)?", "", artifact_uri)
+      base_artifacts <- normalizePath(relative_artifact_uri, winslash = "/", mustWork = FALSE)
+    }
+
+    if (!is.null(base_artifacts)) {
     dir.create(file.path(base_artifacts, "modelo_vuelos"), recursive = TRUE, showWarnings = FALSE)
     file.copy(
       ruta_modelo,
@@ -145,6 +155,7 @@ train_and_log_model <- function(data_path,
       overwrite = TRUE
     )
     artefacto_local <- TRUE
+    }
   }
 
   if (!artefacto_local) {

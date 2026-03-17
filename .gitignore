@@ -5,3 +5,5 @@
 mlruns/
 mlflow.db/
 __pycache__/
+mlflow_host_*.log
+model_*_*.log

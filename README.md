@@ -18,24 +18,50 @@ La demo muestra que **sí**, siempre que el estándar operativo sea el mismo: tr
 - monitor de drift en R que dispara reentrenamiento
 - script reproducible para preparar el dataset y el parquet
 
+## Dataset base
+
+Referencia Kaggle:
+
+- `https://www.kaggle.com/datasets/robikscube/flight-delay-dataset-20182022`
+
+Slug usado por el script:
+
+- `robikscube/flight-delay-dataset-20182022`
+
 ## Paso 0: preparar datos de forma reproducible
 
-El proyecto ahora incluye un script que resuelve la construcción del parquet usado por la demo.
+El proyecto ahora incluye un script real de provisión de datos:
+
+- detecta `kaggle.json`
+- descarga el zip con la Kaggle API
+- descomprime los CSV
+- construye `data-raw/Combined_Flights_2022.parquet`
 
 Archivo:
 
 - `scripts/prepare_flights_data.py`
 
-Uso mínimo si ya tienes el CSV local:
+### Requisitos
+
+1. Instalar la Kaggle API:
 
 ```powershell
-py scripts/prepare_flights_data.py --force
+py -m pip install kaggle
 ```
 
-Uso si necesitas descargar el CSV desde una URL directa:
+2. Descargar el token desde:
+
+- `https://www.kaggle.com/settings`
+
+3. Guardar `kaggle.json` en una de estas ubicaciones:
+
+- `.\kaggle.json`
+- `%USERPROFILE%\.kaggle\kaggle.json`
+- el directorio definido en `KAGGLE_CONFIG_DIR`
+
+### Ejecutar
 
 ```powershell
-$env:FLIGHTS_CSV_URL="AQUI_LA_URL_DIRECTA_DEL_CSV"
 py scripts/prepare_flights_data.py --force
 ```
 
@@ -92,7 +118,7 @@ Rscript monitor.R
 
 ## Orden exacto para presentar
 
-1. Mostrar que los datos se pueden preparar de forma reproducible y que el parquet no depende de una copia manual.
+1. Mostrar que los datos se pueden preparar de forma reproducible desde Kaggle y que el parquet no depende de una copia manual.
 2. Abrir MLflow y formular la pregunta: si usar R obliga o no a salir del flujo MLOps.
 3. Mostrar una run hecha en R.
 4. Mostrar la API de inferencia en R.

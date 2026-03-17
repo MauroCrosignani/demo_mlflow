@@ -36,11 +36,15 @@ No se trata de dos ejercicios independientes, sino de dos caminos sobre un mismo
 ## Paso 0: reproducibilidad de datos
 
 - se agregó un script para preparar el dataset
+- detecta `kaggle.json`
+- usa la Kaggle API sobre `robikscube/flight-delay-dataset-20182022`
+- descarga el zip del dataset
 - resuelve el CSV fuente
 - construye el parquet usado por la demo
 - evita depender de una copia manual del archivo
 
 ```powershell
+py -m pip install kaggle
 py scripts/prepare_flights_data.py --force
 ```
 
@@ -48,6 +52,22 @@ py scripts/prepare_flights_data.py --force
 Subrayar que este cambio mejora la credibilidad de la PoC.
 Antes había dependencia de archivos locales ya presentes.
 Ahora la demo deja explícito cómo se obtiene el insumo y cómo se produce el parquet.
+Mencionar que la credencial se toma desde kaggle.json y que el paso es reproducible para otro equipo.
+:::
+
+## Qué necesita el paso Kaggle
+
+- token descargado desde `kaggle.com/settings`
+- archivo `kaggle.json`
+- ubicación válida:
+  - `.\kaggle.json`
+  - `%USERPROFILE%\.kaggle\kaggle.json`
+  - `KAGGLE_CONFIG_DIR`
+
+::: {.notes}
+Esta slide evita que parezca magia o dependencia implícita.
+Explicar que el único prerequisito manual real es el token de Kaggle.
+Después de eso, el proyecto ya sabe descargar y reconstruir el parquet.
 :::
 
 ## Hallazgo 1: R entra en MLflow

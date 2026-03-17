@@ -65,6 +65,15 @@ py -m pip install kaggle
 - `%USERPROFILE%\.kaggle\kaggle.json`
 - el directorio definido en `KAGGLE_CONFIG_DIR`
 
+Contenido esperado de `kaggle.json`:
+
+```json
+{
+  "username": "TU_USUARIO",
+  "key": "TU_API_KEY"
+}
+```
+
 ### Ejecutar
 
 ```powershell
@@ -137,3 +146,8 @@ Rscript monitor.R
 - R sí puede participar en un flujo de MLOps real.
 - El lenguaje no es el principal determinante; lo son el tracking, la API y la estandarización de artefactos.
 - Las fricciones observadas estuvieron más ligadas al entorno Windows y a Docker Desktop que al modelado en R.
+
+## Guías de handoff
+
+- Perfiles R hacia despliegue y entrega a MLOps: `docs/guia_r_a_docker_mlops.md`
+- Técnicos MLOps para integración y operación: `docs/guia_tecnica_integracion_mlops.md`

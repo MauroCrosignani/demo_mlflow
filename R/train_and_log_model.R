@@ -27,6 +27,17 @@ train_and_log_model <- function(data_path,
                                 sample_size = 50000,
                                 modo_depuracion = TRUE) {
 
+  # En Windows, el paquete mlflow de R puede detectar un launcher sin extensión
+  # que luego falla al subir artefactos. Forzamos un binario real de mlflow.exe
+  # y el Python asociado si están disponibles.
+  if (.Platform$OS.type == "windows") {
+    mlflow_bin_win <- file.path(Sys.getenv("APPDATA"), "Python", "Python314", "Scripts", "mlflow.exe")
+
+    if (file.exists(mlflow_bin_win)) {
+      Sys.setenv(MLFLOW_BIN = normalizePath(mlflow_bin_win, winslash = "/", mustWork = TRUE))
+    }
+  }
+
   # 1. Validación Inicial (Fail-Fast) para MLflow
   if (modo_depuracion) cli::cli_alert_info("Verificando conexión con MLflow en {mlflow_uri}...")
 
@@ -99,6 +110,13 @@ train_and_log_model <- function(data_path,
   mlflow::mlflow_set_experiment(experiment_name)
 
   run <- mlflow::mlflow_start_run()
+  run_finalizado <- FALSE
+  on.exit(
+    if (!run_finalizado) {
+      try(mlflow::mlflow_end_run(status = "FAILED", run_id = run$run_uuid), silent = TRUE)
+    },
+    add = TRUE
+  )
 
   # Logueamos hiperparámetros y métricas
   mlflow::mlflow_log_param("sample_size", sample_size)
@@ -106,10 +124,34 @@ train_and_log_model <- function(data_path,
   mlflow::mlflow_log_metric("rmse", rmse_val)
   mlflow::mlflow_log_metric("mae", mae_val)
 
-  # Logueamos el modelo como un artefacto
-  mlflow::mlflow_log_model(flujo_entrenado, artifact_path = "modelo_vuelos")
+  # El paquete mlflow de R no serializa workflows de tidymodels de forma nativa.
+  # Para el entorno local del MVP guardamos el workflow como RDS en la misma
+  # jerarquía de artefactos que expone MLflow, y si esa ruta no está disponible
+  # intentamos el mecanismo estándar del paquete.
+  ruta_modelo <- tempfile(pattern = "modelo_vuelos_", fileext = ".rds")
+  saveRDS(flujo_entrenado, ruta_modelo)
 
-  mlflow::mlflow_end_run(run_id = run$run_uuid)
+  artefacto_local <- FALSE
+  if (!is.null(run$artifact_uri) && grepl("^/mlruns/", run$artifact_uri) && dir.exists("mlruns")) {
+    base_artifacts <- file.path(
+      normalizePath("mlruns", winslash = "/", mustWork = TRUE),
+      sub("^/mlruns/?", "", run$artifact_uri)
+    )
+    dir.create(file.path(base_artifacts, "modelo_vuelos"), recursive = TRUE, showWarnings = FALSE)
+    file.copy(
+      ruta_modelo,
+      file.path(base_artifacts, "modelo_vuelos", "modelo_vuelos.rds"),
+      overwrite = TRUE
+    )
+    artefacto_local <- TRUE
+  }
+
+  if (!artefacto_local) {
+    mlflow::mlflow_log_artifact(ruta_modelo, artifact_path = "modelo_vuelos")
+  }
+
+  mlflow::mlflow_end_run(status = "FINISHED", run_id = run$run_uuid)
+  run_finalizado <- TRUE
 
   if (modo_depuracion) cli::cli_alert_success("Run completado. RMSE: {round(rmse_val, 2)} | MAE: {round(mae_val, 2)}")
 

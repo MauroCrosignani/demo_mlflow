@@ -121,6 +121,7 @@ train_and_log_model <- function(data_path,
   # Logueamos hiperparámetros y métricas
   mlflow::mlflow_log_param("sample_size", sample_size)
   mlflow::mlflow_log_param("model_type", "linear_regression")
+  mlflow::mlflow_log_param("implementation_language", "r")
   mlflow::mlflow_log_metric("rmse", rmse_val)
   mlflow::mlflow_log_metric("mae", mae_val)
 

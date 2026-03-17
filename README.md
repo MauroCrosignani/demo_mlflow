@@ -18,6 +18,65 @@ La demo muestra que **sí**, siempre que el estándar operativo sea el mismo: tr
 - monitor de drift en R que dispara reentrenamiento
 - script reproducible para preparar el dataset y el parquet
 
+## Requisitos de entorno
+
+### Mínimos
+
+- Windows 10 o Linux
+- 8 GB de RAM
+- 2 núcleos de CPU
+- 10 GB libres en disco
+- Python con `pip`
+- R 4.2 o superior
+
+Uso esperado:
+
+- preparación de datos
+- MLflow en host
+- entrenamiento en R
+- APIs probadas localmente
+
+Riesgo:
+
+- medio a alto para la demo completa con Docker en Windows
+
+### Recomendados
+
+- 16 GB de RAM
+- 4 núcleos de CPU
+- 20 GB libres en disco
+- Docker Desktop o Docker Engine estable
+- Quarto instalado si se quiere renderizar la presentación
+
+Uso esperado:
+
+- demo casi completa
+- builds de Docker con menor fricción
+- mejor margen para MLflow + R + Python abiertos a la vez
+
+Riesgo:
+
+- medio en Windows
+- bajo a medio en Linux
+
+### Óptimos
+
+- Linux o WSL2 bien configurado
+- 32 GB de RAM
+- 4 a 8 núcleos de CPU
+- SSD con 30 GB o más libres
+- Docker Engine estable y sin alta competencia de memoria
+
+Uso esperado:
+
+- demo completa con `docker compose`
+- serving simultáneo de R y Python
+- monitoreo periódico con menor riesgo de timeouts o fallos del engine
+
+Riesgo:
+
+- bajo
+
 ## Dataset base
 
 Referencia Kaggle:

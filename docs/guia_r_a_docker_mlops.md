@@ -24,6 +24,48 @@ El objetivo es dejar una solución completa y transferible que permita:
 - Orquestación objetivo: `docker-compose.yml`
 - Preparación de datos: `scripts/prepare_flights_data.py`
 
+## Requisitos de hardware y entorno
+
+### Mínimos
+
+- 8 GB de RAM
+- 2 núcleos de CPU
+- 10 GB libres en disco
+- R 4.2 o superior
+- Python disponible
+
+Qué permite:
+
+- preparar datos
+- correr MLflow en host
+- entrenar y servir el modelo en R localmente
+
+### Recomendados
+
+- 16 GB de RAM
+- 4 núcleos de CPU
+- 20 GB libres en disco
+- Docker estable
+
+Qué permite:
+
+- trabajar con menos fricción
+- construir imágenes de Docker con más margen
+- tener abiertas herramientas como VS Code, navegador y R al mismo tiempo
+
+### Óptimos
+
+- Linux o WSL2 bien afinado
+- 32 GB de RAM
+- 4 a 8 núcleos
+- SSD con margen libre
+
+Qué permite:
+
+- flujo completo de demo
+- mejor transición a un equipo técnico de MLOps
+- menor probabilidad de fallos por memoria o engine
+
 ## Paso 1. Preparar los datos
 
 La demo usa un parquet local:

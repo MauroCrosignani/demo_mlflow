@@ -36,6 +36,61 @@ Archivos relevantes:
 - `model_python_api.py`
 - `monitor.R`
 
+## Requisitos mínimos, recomendados y óptimos
+
+### Mínimos
+
+- Windows 10 o Linux
+- 8 GB de RAM
+- 2 núcleos
+- 10 GB libres en disco
+- Docker o, alternativamente, ejecución en host
+
+Escenario realista:
+
+- MLflow en host
+- APIs probadas de a una
+- monitoreo ejecutado manualmente o por scheduler
+
+Riesgo:
+
+- alto para `docker compose up -d --build` completo en Windows con otras aplicaciones abiertas
+
+### Recomendados
+
+- 16 GB de RAM
+- 4 núcleos
+- 20 GB libres en disco
+- Docker Desktop o Docker Engine sin presión fuerte de memoria
+
+Escenario realista:
+
+- composición parcial o completa con bastante más estabilidad
+- builds menos sensibles
+- mejor margen para servir ambos modelos
+
+Riesgo:
+
+- medio en Windows
+- bajo a medio en Linux
+
+### Óptimos
+
+- Linux o servidor con Docker Engine estable
+- 32 GB de RAM
+- 4 a 8 núcleos
+- SSD con 30 GB o más libres
+
+Escenario realista:
+
+- operación sostenida
+- builds reproducibles
+- ejecución periódica del monitor con menor probabilidad de fallos transitorios
+
+Riesgo:
+
+- bajo
+
 ## Paso 1. Preparar insumos y directorios
 
 Asegurar existencia de:
